@@ -49,7 +49,7 @@ GameController.prototype.assetsLoaded = function()
 
     //MAP TESTS!!!
     let map = new Map();
-    map.build(4,4,32);
+    map.build(5,5,32);
     console.log('map built == \n', map);
     this._map = map;
 
@@ -86,8 +86,9 @@ GameController.prototype.assetsLoaded = function()
                                 let yell = Math.random()*4;
                                 model.children[1].material.color.r = yell;
                                 this._view.addObject(model);
-                                model.position.x = ((Math.random()*1.5)-0.75) + ((3 * i) - 3*(mapWidth/2));
-                                model.position.z = ((Math.random()*1.5)-0.75) +(3 * j) - 3*(mapHeight/2);
+                                //TODO: the comment randomicity below helps position the secenery trees, but should be moved from here, also what to see it all uniform whilst in dev mode
+                                model.position.x = /*((Math.random()*1.5)-0.75) +*/ (4 * i) - 4*(mapWidth/2);
+                                model.position.z = /*((Math.random()*1.5)-0.75) +*/ (4 * j) - 4*(mapHeight/2);
                                 model.rotation.z = Math.random() * 12.5;
                                 let randScale = (Math.random()*0.35)+0.8;
                                 model.scale.set(1,1,randScale);

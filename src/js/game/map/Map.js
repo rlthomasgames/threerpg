@@ -12,6 +12,7 @@ Map.prototype.build=function(segW, segH, segDensity){
         x:((this._segW*this._segDensity)*0.5),
         y:((this._segH*this._segDensity)*0.5)
     };
+    //TODO: lots of fixing to be done to work out map positioning and creating / recovery - come back here ASAP
     this._worldMap = [];
     for(let i = 0; i < this._segW; i++)
     {
@@ -26,20 +27,27 @@ Map.prototype.build=function(segW, segH, segDensity){
                 {
                     let tileContents = {
                         base: null,
-                        sceneryObjects: [
-                            {
-                                type:'tree00',
-                                rot:45,
-                                red: 1,
-                                scaleH: 1
-                            }
-                            /*,
-                            {
-
-                            }
-                            */
-                        ]
+                        sceneryObjects: []
                     };
+                    if(0 == i && 0 == j) {
+                        if (x > 12 && x < 20 && y > 12 && y < 20) {
+                            //do nothing
+                        }
+                        else
+                        {
+                            tileContents = {
+                                base: null,
+                                sceneryObjects: [
+                                    {
+                                        type: 'tree00',
+                                        rot: 45,
+                                        red: 1,
+                                        scaleH: 1
+                                    }
+                                ]
+                            };
+                        }
+                    }
                     this._worldMap[i][j][x].push({tileContents:tileContents});
                 }
             }
@@ -50,7 +58,7 @@ Map.prototype.build=function(segW, segH, segDensity){
 
 Map.prototype.getLocalMap = function(centerX, centerY)
 {
-  return this._worldMap[0][0];
-}
+    return this._worldMap[0][0];
+};
 
 
