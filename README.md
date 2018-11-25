@@ -2,7 +2,7 @@
 
 ## Quick start
 
-Choose one of the following options:
+import entire checkout as webStorm project and then run the index.html file in src folder
 
 ## Status
 
