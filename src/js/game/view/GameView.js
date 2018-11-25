@@ -9,7 +9,11 @@ function GameView() {
 }
 
 
-GameView.prototype.init = function() {
+GameView.prototype.init = function(playerObject) {
+
+    this._directionalLight = null;
+
+    this._playerObject = playerObject;
     this._container = document.getElementById('mainContainer');
     this._container.style.width = window.innerWidth;
     this._container.style.height = window.innerHeight;
@@ -49,7 +53,8 @@ GameView.prototype.basicLights = function() {
     directionalLight.shadow.mapSize.height = 1024; // default
     directionalLight.shadow.camera.near = 0.5;    // default
     directionalLight.shadow.camera.far = 300;     // default
-    this._scene.add( directionalLight );
+    this._directionalLight = directionalLight;
+    this._scene.add(this._directionalLight);
 
     //Create a helper for the shadow camera (optional)
     //var helper = new THREE.CameraHelper( directionalLight.shadow.camera );
@@ -67,6 +72,6 @@ GameView.prototype.addObject = function(object) {
 
 GameView.prototype.render = function() {
     this.deltaTest+=1;
-    this._cameraController.update(this.deltaTest/5, 44);
+    this._cameraController.update(this.deltaTest/5, 44, this._playerObject, this._directionalLight);
     this._renderer.render(this._scene, this._camera);
 };

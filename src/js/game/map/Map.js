@@ -24,10 +24,33 @@ Map.prototype.build=function(segW, segH, segDensity){
                 this._worldMap[i][j].push([]);
                 for(let y = 0; y < this._segDensity; y++)
                 {
-                    this._worldMap[i][j][x].push({tilName:'empty'});
+                    let tileContents = {
+                        base: null,
+                        sceneryObjects: [
+                            {
+                                type:'tree00',
+                                rot:45,
+                                red: 1,
+                                scaleH: 1
+                            }
+                            /*,
+                            {
+
+                            }
+                            */
+                        ]
+                    };
+                    this._worldMap[i][j][x].push({tileContents:tileContents});
                 }
             }
         }
     }
     console.log('blank map == \n', this._worldMap);
 };
+
+Map.prototype.getLocalMap = function(centerX, centerY)
+{
+  return this._worldMap[0][0];
+}
+
+

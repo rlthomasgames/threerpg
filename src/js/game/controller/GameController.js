@@ -10,10 +10,15 @@ GameController.prototype.init = function() {
     console.log('creating game controller....');
 
     //TODO: REQUIRED - actual server initiation first!, if not diverted to something less involved!
+    this._playerObject = {
+        name: 'Rhys',
+        worldTileX: 0,
+        worldTileY: 0
+    };
 
     //create view
     this._view = new GameView();
-    this._view.init();
+    this._view.init(this._playerObject);
 
     //ASSETS
     this._assetsLoader = new AssetsLoader();
@@ -27,6 +32,8 @@ GameController.prototype.init = function() {
     this._assetsLoader.loadTextures(assetsList);
     this._assetsLoader.loadMeshes(assetsList);
 
+    this._map = null;
+
 
     //animating TODO - need to compensate for animated type collada soon! - add to assetsloader and descriptor, animated : -true or false
     //var animations = collada.animations;
@@ -39,64 +46,59 @@ GameController.prototype.init = function() {
 
 GameController.prototype.assetsLoaded = function()
 {
+
+    //MAP TESTS!!!
+    let map = new Map();
+    map.build(4,4,32);
+    console.log('map built == \n', map);
+    this._map = map;
+
     //TODO : ASSETS LOADER NEEDS TO INSPECT AND BE ABLE TO RECOGNISE WHEN COMPLETED A LOAD, STAGGERING IS BEST!, HMMMMM :/
     //TODO : LOTS TO CONSIDER, BEST POSSIBLE WAY, once again!
     //comment - lolz - yup here the proper start, initiate actual stuff here, perhaps perform a correct stagnatiated load before!
     if(this._assetsLoader.loaded)
     {
-        let mapWidth = 32;
-        let mapHeight = 32;
-        let centerX = 16;//half of 32, making it centered
-        let centerY = 16;//half of 32, making it centered
-        let radius = 2.37;//radious of circle
-        let HEX = false;//TODO: - remove hex is unnecessary with the local position location im implementing for scenery within a tiles space
-        for(let j = 0; j < mapWidth; j++) {
-            for (let i = 0; i < mapHeight; i++) {
-                if(!(((i-centerX)*(i-centerX)) + ((j-centerY)*(j-centerY)) <= radius*radius)) {
-                    let model = this._assetsLoader.getColladaModel('tree00');
-                    //console.log(model.children[0]);
-                    model.children[0].material.transparent = true;
-                    model.children[1].material.alphaTest = 0.55;
-                    model.children[1].material.side = THREE.DoubleSide;
-                    model.children[1].material.shininess = 0;
-                    //TO VIEW WIREFRAME, UN-COMMENT BELOW
-                    /*
-                    model.children[1].material.wireframe = true;
-                    model.children[0].material = new THREE.MeshBasicMaterial({color:0xFFFFFF, wireframe:true});
-                    model.children[0].material.map = null;
-                    model.children[1].material.texture = null;
-                    */
-                    model.children[1].material = model.children[0].material.clone();
-                    let yell = Math.random()*4;
-                    model.children[1].material.color.r = yell;
-                    //model.children[1].material.color.b = 0;
-                    console.log('check..', model.children);
-                    //TODO: - work out why light creating shadows isn't working for collada models
-                    /*
-                    model.children[1].castShadows = true;
-                    model.children[1].receiveShadow = true;
-                    model.traverse(function(child){
-                        child.castShadows = true;
-                        child.receiveShadow = true;
-                    });
-                    */
-                    this._view.addObject(model);
-                    let offsetX = 0;
-                    //TODO: remove hexmap idea, not good!
-                    if(HEX) {
-                        if (j % 2 == 0) {
-                            offsetX = 1.5;//makes trees appear to be hex, there seven sided so not hex anyway
+        let localMap = this._map.getLocalMap(0,0);
+        let mapWidth = localMap.length;
+        let mapHeight = localMap[0].length;
+        for(let i = 0; i < localMap.length; i++)
+        {
+            for(let j = 0; j < localMap[i].length; j++)
+            {
+                let tile = localMap[i][j];
+                if(tile.tileContents)
+                {
+                    let sceneryObjects = tile.tileContents.sceneryObjects;
+                    if(sceneryObjects && sceneryObjects.length > 0)
+                    {
+                        for(let k = 0; k < sceneryObjects.length; k++)
+                        {
+                            let sceneryObject = sceneryObjects[k];
+                            if(sceneryObject.type == 'tree00')
+                            {
+                                let model = this._assetsLoader.getColladaModel('tree00');
+                                //console.log(model.children[0]);
+                                model.children[0].material.transparent = true;
+                                model.children[1].material.alphaTest = 0.55;
+                                model.children[1].material.side = THREE.DoubleSide;
+                                model.children[1].material.shininess = 0;
+                                model.children[1].material = model.children[0].material.clone();
+                                let yell = Math.random()*4;
+                                model.children[1].material.color.r = yell;
+                                this._view.addObject(model);
+                                model.position.x = ((Math.random()*1.5)-0.75) + ((3 * i) - 3*(mapWidth/2));
+                                model.position.z = ((Math.random()*1.5)-0.75) +(3 * j) - 3*(mapHeight/2);
+                                model.rotation.z = Math.random() * 12.5;
+                                let randScale = (Math.random()*0.35)+0.8;
+                                model.scale.set(1,1,randScale);
+                            }
                         }
                     }
-                    model.position.x = ((Math.random()*1.5)-0.75) + ((3 * i) - 3*(mapWidth/2))+offsetX;
-                    model.position.z = ((Math.random()*1.5)-0.75) +(3 * j) - 3*(mapWidth/2);
-                    model.rotation.z = Math.random() * 12.5;
-                    let randScale = (Math.random()*0.35)+0.8;
-                    model.scale.set(1,1,randScale);
                 }
+                console.log(tile);
             }
         }
-
+        /*
         //TODO: make animated char
         let char = this._assetsLoader.getColladaModel('char00');
         char.castShadows = true;
@@ -114,17 +116,17 @@ GameController.prototype.assetsLoaded = function()
         mesh.rotation.x = THREE.Math.degToRad(-90);
         mesh.needsUpdate = true;
         this._view.addObject(mesh);
-
-        //MAP TESTS!!!
-        let map = new Map();
-        map.build(4,4,32);
-        console.log('map built == \n', map);
+        */
 
     }
     else
     {
         setTimeout(this.assetsLoaded.bind(this), 1000);
     }
+};
+
+GameController.prototype.processMap = function() {
+
 };
 
 GameController.prototype.destroy = function() {
